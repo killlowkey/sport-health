@@ -15,17 +15,17 @@
 
 * 系统日志
 
-  ![](/doc/images/Snipaste_2020-09-07_10-06-44.png)
+  ![](https://wx1.sbimg.cn/2020/09/07/9Dvdh.png)
 
 * 异常日志
 
-  ![](/doc/images/Snipaste_2020-09-07_10-07-06.png)
+  ![](https://wx1.sbimg.cn/2020/09/07/9DaXn.png)
 
 * 接口限流
 
-  ![](/doc/images/Snipaste_2020-09-07_10-08-42.png)
+  ![](https://wx1.sbimg.cn/2020/09/07/9DYxk.png)
 
-  ![](/doc/images/Snipaste_2020-09-07_10-08-55.png)
+  ![](https://wx1.sbimg.cn/2020/09/07/9DWjj.png)
 
 ## 4. 运行项目
 
