@@ -23,4 +23,6 @@ public interface UserService {
     int insertUser(UserDto userDto);
 
     int deleteUser(long id);
+
+    User findByUsername(String username);
 }

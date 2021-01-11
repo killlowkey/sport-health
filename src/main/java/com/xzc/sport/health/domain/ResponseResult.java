@@ -31,7 +31,7 @@ public class ResponseResult {
         return success(message, null);
     }
 
-    public static ResponseResult sucess(GlobalEnum globalEnum) {
+    public static ResponseResult success(GlobalEnum globalEnum) {
         return success(globalEnum.getMessage());
     }
 

@@ -25,14 +25,16 @@
   </div>
 </template>
 
-<script>
+<script >
+import cookie from '../util/cookie-util'
+
 export default {
     data() {
         return {
             // 表单数据
             loginForm: {
                 username: 'admin',
-                password: '123456'
+                password: '12345678'
             },
             // 表单数据校验
             loginFormRules: {
@@ -73,7 +75,7 @@ export default {
                 //     background: 'rgba(0, 0, 0, 0.7)'
                 // });
                 this.userLogin = true;
-                $http.post("/login", this.loginForm).then(response => {
+                $http.post("/authorize/login", this.loginForm).then(response => {
                     // loading.close();
                     this.userLogin = false;
                     const res = response.data;
@@ -81,12 +83,15 @@ export default {
                     // window.sessionStorage.setItem("user", res.data);
 
                     // 用户状态在120分钟后过期
-                    window.storage.set("user", res.data, 120 * 60 * 1000);
+                    // window.storage.set("user", res.data, 120 * 60 * 1000);
+
+                    // 存储用户 token，7天之后过期
+                    cookie.setCookie('Authorization', res.data.token, 7 * 24 * 60 * 60 * 1000);
                     
                     // 登录成功重定向到主页
                     this.$router.push({path: '/home'});
                     this.$notify({
-                        title: '欢迎回来 ' + res.data.username,
+                        title: '欢迎回来',
                         type: 'success'
                     });
                 })

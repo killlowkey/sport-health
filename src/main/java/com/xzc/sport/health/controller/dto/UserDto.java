@@ -1,6 +1,5 @@
 package com.xzc.sport.health.controller.dto;
 
-import com.xzc.sport.health.modules.role.Role;
 import lombok.Data;
 
 import javax.validation.constraints.Email;
@@ -26,8 +25,6 @@ public class UserDto {
     @NotNull(message = "邮箱不能为空")
     @Email(message = "邮箱格式错误")
     private String email;
-
-    private Role role;
 
     private boolean state;
 }

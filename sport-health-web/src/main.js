@@ -21,8 +21,9 @@ import _router from '@/router/index'
 import VueHighlightJS from 'highlight.js'
 import 'highlight.js/styles/atom-one-dark.css'
 
-// axios.defaults.baseURL = "http://localhost:9000"
-// axios.defaults.withCredentials=true; 
+// cookie
+import cookieUtil from '@/util/cookie-util'
+
 
 const service = axios.create({
   baseURL: "http://localhost:9000/api",
@@ -39,6 +40,11 @@ window.$http = service
 service.interceptors.request.use(
   config => {
     config.headers['Content-Type'] = 'application/json'
+    // config.headers['Access-Control-Allow-Origin'] = '*'
+    var token = cookieUtil.getCookie('Authorization')
+    if (token) {
+      config.headers['Authorization'] = 'Basic ' + token
+    }
     return config
   },
   error => {
@@ -51,33 +57,39 @@ service.interceptors.request.use(
 // 设置响应拦截器
 service.interceptors.response.use(res => {
   const data = res.data;
-  // 用户未登陆
-  if (data.code === 100) {
+  if (data.code === 400) {
+    console.log("400错误");
+    if(data.data === 'Token已过期，请重新进行登录') {
+      _router.push({ path: '/login' });
+    }
+    return Notification.error({
+      title: data.message
+    })
+  } else if (data.code === 401) {
     // console.log('用户未登陆......');
     // 用户未登陆跳转到 /login 页面
-    // window.top.location.href='login';
-    _router.push({path: '/login'});
+    _router.push({ path: '/login' });
     return Notification.error({
-      title: data.message
+      title: '用户未登录'
     })
-  } else if (data.code === 400) {
-    console.log("400错误");
+  } else if (data.code === 403) {
     return Notification.error({
-      title: data.message
+      title: '用户没有权限访问该接口'
     })
-  }
+  } 
+
   return res
 }, error => {
-    if(error.message === 'Network Error') {
-      Notification.error({
-        title: '请检查本地的连接'
-      })
-    } else {
-      Notification.error({
-        title: error.message
-      })
-    }
-    return Promise.reject(error)
+  if (error.message === 'Network Error') {
+    Notification.error({
+      title: '请检查本地的连接'
+    })
+  } else {
+    Notification.error({
+      title: error.message
+    })
+  }
+  return Promise.reject(error)
 });
 
 
@@ -95,10 +107,10 @@ new Vue({
 
 Vue.use(VueHighlightJS)
 // 代码高亮
-Vue.directive('highlight',function (el) {
+Vue.directive('highlight', function (el) {
   let blocks = el.querySelectorAll('pre code');
   console.log(blocks);
-  blocks.forEach((block)=>{
+  blocks.forEach((block) => {
     VueHighlightJS.highlightBlock(block)
   })
 })

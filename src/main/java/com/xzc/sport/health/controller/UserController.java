@@ -8,10 +8,8 @@ import com.xzc.sport.health.controller.vo.PageVo;
 import com.xzc.sport.health.domain.ResponseResult;
 import com.xzc.sport.health.domain.User;
 import com.xzc.sport.health.modules.log.Log;
-import com.xzc.sport.health.modules.role.Role;
 import com.xzc.sport.health.service.UserService;
 import com.xzc.sport.health.util.BindingResultUtils;
-import com.xzc.sport.health.modules.role.hasRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -30,8 +28,8 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/users")
-    @hasRoles(Role.ADMIN)
     @Log("获取用户")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseResult getAllUser(@RequestParam(value = "pageNum", defaultValue = "0") int pageNum,
                                      @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
                                      @RequestParam(value = "queryName", defaultValue = "") String queryName) {
@@ -42,7 +40,6 @@ public class UserController {
 
 
     @PutMapping("/user")
-    @hasRoles(Role.ADMIN)
     @Log("更新用户")
     public ResponseResult updateUser(@RequestBody @Valid UserDto userDto,
                                      BindingResult result) throws BindException {
@@ -52,7 +49,6 @@ public class UserController {
     }
 
     @PostMapping("/user")
-    @hasRoles(Role.ADMIN)
     @Log("添加用户")
     public ResponseResult insertUser(@RequestBody @Valid UserDto userDto,
                                      BindingResult result) throws BindException {
@@ -62,7 +58,6 @@ public class UserController {
     }
 
     @DeleteMapping("/user/{id}")
-    @hasRoles(Role.ADMIN)
     @Log("删除用户")
     public ResponseResult deleteUser(@PathVariable("id") long id) {
         userService.deleteUser(id);

@@ -3,11 +3,11 @@
 ## 1. 项目技术栈
 
 * 前端：vue + element ui
-* 后端：Java8 + Maven + SpringBoot + MyBatis-Plus + Redis 
+* 后端：Java11 + Maven + SpringBoot + Spring Security + MyBatis-Plus + Redis
 
 ## 2. 主要特征
 
-* 接口动态限流
+* 接口动态限流（基于Filter）
 * 详细日志记录
 * 接口权限管理
 

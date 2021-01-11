@@ -1,123 +1,106 @@
 package com.xzc.sport.health.controller;
 
 import com.xzc.sport.health.config.GlobalAttributes;
-import com.xzc.sport.health.controller.dto.LimitDto;
-import com.xzc.sport.health.controller.vo.OptionVo;
 import com.xzc.sport.health.domain.Limit;
 import com.xzc.sport.health.domain.ResponseResult;
-import com.xzc.sport.health.modules.limit.LimitHolder;
-import com.xzc.sport.health.modules.limit.PathInfo;
 import com.xzc.sport.health.modules.log.Log;
-import com.xzc.sport.health.modules.role.Role;
-import com.xzc.sport.health.modules.role.hasRoles;
 import com.xzc.sport.health.service.LimitService;
-import com.xzc.sport.health.util.BindingResultUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindException;
-import org.springframework.validation.BindingResult;
+import com.xzc.sport.health.util.StringUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author Ray
- * @date created in 2020/9/5 15:57
+ * @date created in 2021/1/11 14:06
  */
 @RestController
+@RequiredArgsConstructor
 public class LimitController {
 
-    @Autowired
-    private LimitService limitService;
+    private final LimitService limitService;
+    private List<String> cachePathInfo;
 
     @GetMapping("/limits")
-    @hasRoles(Role.ADMIN)
-    @Log("获取限流接口")
+    @Log("获取所有限流接口")
     public ResponseResult getAllLimit() {
-        return ResponseResult.success(limitService.findAllLimit());
+        return ResponseResult.success(limitService.getAllLimit());
     }
 
-    @GetMapping("/limit/config")
-    @hasRoles(Role.ADMIN)
-    @Log("获取限流配置")
-    public ResponseResult getLimitConfig() {
-        return ResponseResult.success(LimitHolder.getPathInfoMap());
-    }
-
-    @PutMapping("/limit")
-    @hasRoles(Role.ADMIN)
-    @Log("更新限流接口")
-    public ResponseResult updateLimit(@RequestBody @Valid LimitDto limitDto,
-                                      BindingResult result) throws BindException {
-        BindingResultUtils.handler(result);
-        Limit limit = new Limit();
-        BeanUtils.copyProperties(limitDto, limit);
-        limitService.update(limit);
-        return ResponseResult.success(GlobalAttributes.LIMIT_UPDATED_SUCCESS);
+    @GetMapping("/limit/{id}")
+    @Log("获取指定限流接口详情")
+    public ResponseResult getLimitById(@PathVariable long id) {
+        return ResponseResult.success(limitService.getLimitById(id));
     }
 
     @DeleteMapping("/limit/{id}")
-    @hasRoles(Role.ADMIN)
-    @Log("删除限流接口")
-    public ResponseResult deleteLimit(@PathVariable("id") long id) {
-        limitService.deleteLimitById(id);
-        return ResponseResult.success(GlobalAttributes.LIMIT_INTERFACE_DELETE_SUCCESS);
+    @Log("删除指定限流接口")
+    public ResponseResult deleteLimitById(@PathVariable long id) {
+        int result = limitService.deleteLimit(id);
+        if (result >= 1) {
+            return ResponseResult.success(GlobalAttributes.DELETE_LIMIT_SUCCESS);
+        }
+
+        return ResponseResult.error(GlobalAttributes.DELETE_LIMIT_FAILURE);
     }
 
     @PostMapping("/limit")
-    @hasRoles(Role.ADMIN)
     @Log("添加限流接口")
-    public ResponseResult insertLimit(@RequestBody @Valid LimitDto limitDto,
-                                      BindingResult result) throws BindException {
-        BindingResultUtils.handler(result);
-        Limit limit = new Limit();
-        BeanUtils.copyProperties(limitDto, limit);
-        limitService.insertLimit(limit);
-        return ResponseResult.success(GlobalAttributes.LIMIT_INSERT_SUCCESS);
+    public ResponseResult insertLimit(@RequestBody Limit limit) {
+        int result = limitService.insertLimit(limit);
+        if (result >= 1) {
+            return ResponseResult.success(GlobalAttributes.INSERT_LIMIT_SUCCESS);
+        }
+
+        return ResponseResult.error(GlobalAttributes.INSERT_LIMIT_FAILURE);
     }
 
-    @GetMapping("/limit/controllerOption")
-    public ResponseResult getControllerOption() {
-        List<OptionVo> optionVoList = new ArrayList<>();
-        Map<String, List<PathInfo>> pathInfoMap = LimitHolder.getPathInfoMap();
-        pathInfoMap.forEach((key, value) -> {
-            String[] strs = key.split("\\.");
-            optionVoList.add(new OptionVo(strs[strs.length-1], key));
-        });
+    @PutMapping("/limit")
+    @Log("更新指定限流接口")
+    public ResponseResult updateLimit(@RequestBody Limit limit) {
+        int result = limitService.updateLimit(limit);
+        if (result >= 1) {
+            return ResponseResult.success(GlobalAttributes.UPDATE_LIMIT_SUCCESS);
+        }
 
-        return ResponseResult.success(optionVoList);
+        return ResponseResult.error(GlobalAttributes.UPDATE_LIMIT_FAILURE);
     }
 
-    @GetMapping("/limit/pathOption")
-    public ResponseResult getPathOption(@RequestParam(value = "controllerName", defaultValue = "") String controllerName) {
-        List<OptionVo> optionVoList = new ArrayList<>();
-        LimitHolder.getPathInfoMap()
-                .getOrDefault(controllerName, new ArrayList<>())
-                .forEach(pathInfo -> {
-                    optionVoList.add(new OptionVo(pathInfo.getPath(), pathInfo.getPath()));
-                });
-
-        return ResponseResult.success(optionVoList);
+    @GetMapping("/limit/pathInfo")
+    @Log("获取所有请求路径")
+    public ResponseResult getAllRequestPathInfo() {
+        if (cachePathInfo == null) {
+            cachePathInfo = limitService.getAllRequestInfo()
+                    .stream()
+                    .map(pathInfo -> pathInfo.getMethod().name() + " " + pathInfo.getPath())
+                    .collect(Collectors.toList());
+        }
+        return ResponseResult.success(cachePathInfo);
     }
 
-    @GetMapping("/limit/methodOption")
-    public ResponseResult getMethodOption(@RequestParam(value = "controllerName", defaultValue = "") String controllerName,
-                                          @RequestParam(value = "path", defaultValue = "") String path) {
-        List<OptionVo> optionVoList = new ArrayList<>();
-        LimitHolder.getPathInfoMap()
-                .getOrDefault(controllerName, new ArrayList<>())
-                .forEach(pathInfo -> {
-                    if (pathInfo.getPath().equalsIgnoreCase(path)) {
-                        String name = pathInfo.getMethodType().getName();
-                        optionVoList.add(new OptionVo(name, name));
-                    }
-                });
+    @GetMapping("/limit/methodInfo")
+    @Log("获取路径请求method")
+    public ResponseResult getPathMethodInfo(@RequestParam String path) {
+        String[] values = path.split(" ");
+        if (values.length != 2) {
+            return ResponseResult.error(GlobalAttributes.NOT_FOUND_PATH_METHOD);
+        }
 
-        return ResponseResult.success(optionVoList);
+        Optional<String> methodOption = limitService.getAllRequestInfo()
+                .stream()
+                .filter(requestPathInfo -> requestPathInfo.getMethod().matches(values[0]) &&
+                        requestPathInfo.getPath().equals(values[1]))
+                .map(requestPathInfo -> requestPathInfo.getMethod().name())
+                .findFirst();
+
+        String method = methodOption.orElse("");
+        if (StringUtils.hasText(method)) {
+            return ResponseResult.success("success", method);
+        } else {
+            return ResponseResult.error(GlobalAttributes.NOT_FOUND_PATH_METHOD);
+        }
     }
-
-
 }

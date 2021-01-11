@@ -1,18 +1,17 @@
 package com.xzc.sport.health.modules.log;
 
+import com.xzc.sport.health.config.security.UserHolder;
 import com.xzc.sport.health.domain.Log;
-import com.xzc.sport.health.modules.role.UserHolder;
 import com.xzc.sport.health.service.LogService;
-import com.xzc.sport.health.util.StringUtils;
+import com.xzc.sport.health.util.ThrowableUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import com.xzc.sport.health.util.ThrowableUtils;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 /**

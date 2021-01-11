@@ -10,7 +10,6 @@ import com.xzc.sport.health.modules.exception.BadRequestException;
 import com.xzc.sport.health.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,7 +28,7 @@ public class UserServiceImpl implements UserService {
     public User findByUsernameAndPassword(String username, String password) {
         User user = userMapper.findByUsernameAndPassword(username, password);
         // user#state == false 说明该用户被禁用了
-        if (user != null && !user.isState()) {
+        if (user != null && !user.isEnable()) {
             throw new BadRequestException(GlobalEnum.USER_DISABLE);
         }
         return user;
@@ -71,6 +70,11 @@ public class UserServiceImpl implements UserService {
         }
 
         return userMapper.deleteById(id);
+    }
+
+    @Override
+    public User findByUsername(String username) {
+        return userMapper.findByUsername(username);
     }
 
     @Override

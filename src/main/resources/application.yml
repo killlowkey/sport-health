@@ -40,8 +40,14 @@ server:
   port: 9000
 mybatis-plus:
   type-enums-package: com.xzc.sport.health.modules.role.Role
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+#logging:
+#  level:
+#    com:
+#      baomidou: DEBUG
+
 
 
 

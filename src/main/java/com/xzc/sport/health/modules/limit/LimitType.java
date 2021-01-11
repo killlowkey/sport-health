@@ -4,14 +4,14 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
 
 /**
  * 限流类型
- * 1、方法限流
+ * 1、path限流
  * 2、ip限流
  *
  * @author Ray
  * @date created in 2020/9/1 21:46
  */
 public enum LimitType {
-    METHOD("METHOD"),
+    PATH("PATH"),
     IP("IP");
 
     @EnumValue

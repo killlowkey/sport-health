@@ -2,7 +2,6 @@ package com.xzc.sport.health.domain;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.xzc.sport.health.modules.role.Role;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -21,7 +20,7 @@ public class MainMenu {
      * 菜单id
      */
     @TableId(type = IdType.AUTO)
-    private long id;
+    private Long id;
 
     /**
      * 菜单标题
@@ -34,9 +33,6 @@ public class MainMenu {
      * 菜单路径
      */
     private String path;
-
-    @JsonIgnore
-    private Role role;
 
     @TableField(exist = false)
     private List<SubMenu> subMenuList;

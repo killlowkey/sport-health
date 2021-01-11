@@ -27,20 +27,8 @@
 
 
         <el-table :data="limitList" border stripe="" style="width: 100%">
-              <el-table-column type="expand">
-                <template slot-scope="props">
-                    <el-form label-position="left" class="demo-table-expand">
-                        <el-form-item label="控制器名">
-                            <span>{{ props.row.controllerName }}</span>
-                        </el-form-item>
-                        <el-form-item label="方法签名">
-                            <span>{{ props.row.methodSignature }}</span>
-                        </el-form-item>
-                    </el-form>
-                </template>
-              </el-table-column>
               <el-table-column label="http路径" prop="path"></el-table-column>
-              <el-table-column label="http方法" prop="methodType"></el-table-column>
+              <el-table-column label="http方法" prop="method"></el-table-column>
               <el-table-column label="限流类型" prop="limitType">
                   <!-- 添加过滤器 -->
                   <template slot-scope="scope">
@@ -63,38 +51,25 @@
                     <el-button type="danger" icon="el-icon-delete" size="mini" @click="deleteLimit(scope.row.id)"></el-button>
 
                     <!-- 更新Limit dialog区域 -->
-                    <el-dialog title="限流接口更新" :visible.sync="dialogFormVisible">
+                    <el-dialog :title="updateLimitState ? '更新限流接口' : '添加限流接口'" :visible.sync="dialogFormVisible" :before-close="displayDislog">
                         <el-form :model="limitForm"  ref="limitFormRef">
-                            <el-form-item label="控制器" :label-width="formLabelWidth" prop="controllerName" :change="selectControllerName()">
-                                <el-select v-model="limitForm.controllerName" placeholder="请选择控制器" @change="controllerNameChange($event)">
-                                    <el-option v-for="item in controllerOption"       
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
                             <el-form-item label="请求路径" :label-width="formLabelWidth" prop="path">
-                                <el-select v-model="limitForm.path" placeholder="请选择请求路径" @change="pathChange($event)">
+                                <el-select v-model="limitForm.path" placeholder="请选择请求路径" @change="pathChange($event)" :disabled="edit">
                                     <el-option v-for="item in pathOption"       
-                                        :key="item.value"
+                                        :key="item"
                                         :label="item.label"
-                                        :value="item.value">
+                                        :value="item">
                                     </el-option>
                                 </el-select>
                             </el-form-item>
                             <el-form-item label="请求方法" :label-width="formLabelWidth" prop="method">
-                                <el-select v-model="limitForm.methodType" placeholder="请选择请求方法">
-                                    <el-option v-for="item in methodOption"       
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value">
-                                    </el-option>
-                                </el-select>
+                                <el-col :span="9">
+                                    <el-input v-model="limitForm.method" placeholder="请求方法" :disabled="edit"></el-input>
+                                </el-col>
                             </el-form-item>
                              <el-form-item label="限流类型" :label-width="formLabelWidth" prop="limitType">
                                 <el-select v-model="limitForm.limitType" placeholder="请选择限制类型">
-                                    <el-option label="方法" value="METHOD"></el-option>
+                                    <el-option label="PATH" value="PATH"></el-option>
                                     <el-option label="IP" value="IP"></el-option>
                                 </el-select>
                             </el-form-item>
@@ -134,24 +109,22 @@ export default {
             limitList: [],
             limitForm: {
                 "id": 0,
-                "controllerName": '',
                 "path": '',
-                "methodType": '',
+                "method": '',
                 "limitType": '',
-                "methodSignature": '',
                 "state": true,
                 "period": 60,
                 "count": 60
             },
             searchLoading: false, // 搜索加载
             limitConfig: {},
-            controllerOption: [],
             pathOption: [],
-            methodOption: [],
             dialogTableVisible: false,
             dialogFormVisible: false,
             formLabelWidth: '120px',
-            updateLimitState: false
+            updateLimitState: false,
+            edit: false
+            // ,dialogTitle: updateLimitState ? '添加限流接口' : '更新限流接口'
         }
     },
     methods: {
@@ -195,17 +168,10 @@ export default {
         },
         openLimitEdit() {
             this.dialogFormVisible = true;
-            $http.get('/limit/controllerOption').then(response => {
-                this.controllerOption = response.data.data;
-            });
-
-            $http.get('/limit/pathOption', {
-                params: {
-                    "controllerName": this.limitForm.controllerName
-                }
-            }).then(response => {
+            console.log(this.dialogFormVisible)
+            $http.get('/limit/pathInfo').then(response => {
                 this.pathOption = response.data.data;
-            })
+            });
         },
         optionLimit() {
             // 升级限流接口
@@ -219,6 +185,7 @@ export default {
                     });
                     this.resetLimitForm();
                     this.updateLimitState = false;
+                    this.display = false;
                 })
             } else {
                 // 添加限流接口
@@ -237,27 +204,15 @@ export default {
         selectControllerName() {
             // console.log('controllerName：' + this.limitForm.controllerName);
         },
-        // 选中控制器名称
-        controllerNameChange(controllerName) {
-            this.limitForm.path = '';
-            $http.get('/limit/pathOption', {
-                params: {
-                    "controllerName": controllerName
-                }
-            }).then(response => {
-                this.pathOption = response.data.data;
-            })
-        },
         // 选中了 path
         pathChange(path) {
-            this.limitForm.methodType = '';
-            $http.get('/limit/methodOption', {
+            this.limitForm.method = '';
+            $http.get('/limit/methodInfo', {
                 params: {
-                    "controllerName": this.limitForm.controllerName,
                     "path": this.limitForm.path
                 }
             }).then(response => {
-                this.methodOption = response.data.data;
+                this.limitForm.method = response.data.data;
             })
         },
         // 清空limitForm表单
@@ -276,15 +231,13 @@ export default {
         },
         // 关闭 dialog
         displayDislog() {
+            this.edit = false;
             this.dialogFormVisible = false
             this.resetLimitForm();
         },
         // 更新updateLimit
         updateLimit(row) {
-            $http.get('/limit/controllerOption').then(response => {
-                this.controllerOption = response.data.data;
-            });
-
+            this.edit = true;
             this.limitForm = row;
             this.dialogFormVisible = true;
             this.updateLimitState = true;
@@ -293,8 +246,8 @@ export default {
     filters: {
         convertType: function (type) {
             if (!type) return ''
-            if (type === "IP") return 'ip地址';
-            if (type === "METHOD") return '接口方法';
+            if (type === "IP") return 'IP地址';
+            if (type === "PATH") return 'path路径';
             return type;
         }
     }

@@ -8,6 +8,7 @@ import Limit from '../components/admin/Limit.vue'
 import Druid from '../components/admin/Druid.vue' 
 import Log from '../components/admin/Log.vue'
 import ErrorLog from '../components/admin/ErrorLog'
+import cookieUtil from '@/util/cookie-util'
 
 Vue.use(VueRouter)
 
@@ -49,8 +50,9 @@ router.beforeEach((to, from, next) => {
 
   // 访问首页就放行
   if (to.path == '/login') {
-    if (user) {
-      return next(window.storage.get("activePath"));
+    if (cookieUtil.getCookie('Authorization')) {
+      // return next(window.storage.get("activePath"));
+      return next('/welcome');
     } else {
       return next();
     }
@@ -58,7 +60,7 @@ router.beforeEach((to, from, next) => {
 
   // 从本地session中获取 session
   // const user = window.sessionStorage.getItem("user");
-  if (!user) {
+  if (!cookieUtil.getCookie('Authorization')) {
     // 说明用户未登陆，直接跳转到登录页面
     return next("/login");
   } 

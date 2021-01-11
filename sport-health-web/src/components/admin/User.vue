@@ -33,17 +33,17 @@
               <el-table-column type="index"></el-table-column>
               <el-table-column label="用户名" prop="username"></el-table-column>
               <el-table-column label="邮箱" prop="email"></el-table-column>
-              <el-table-column label="密码" prop="password"></el-table-column>
-              <el-table-column label="角色" prop="role">
+              <!-- <el-table-column label="密码" prop="password"></el-table-column> -->
+              <!-- <el-table-column label="角色" prop="role"> -->
                   <!-- 添加过滤器 -->
-                  <template slot-scope="scope">
+                  <!-- <template slot-scope="scope">
                       {{scope.row.role | convert}}
-                  </template>
-              </el-table-column>
-              <el-table-column label="状态" prop="state">
+                  </template> -->
+              <!-- </el-table-column> -->
+              <el-table-column label="状态" prop="enable">
                   <!-- 作用域插槽 -->
                 <template slot-scope="scope">
-                    <el-switch v-model="scope.row.state" @change="userStateChanged(scope.row)"></el-switch>
+                    <el-switch v-model="scope.row.enable" @change="userStateChanged(scope.row)"></el-switch>
                 </template>
               </el-table-column>
             <el-table-column label="操作">
@@ -69,14 +69,14 @@
                          <el-form-item label="邮箱" :label-width="formLabelWidth" prop="email">
                             <el-input v-model="userForm.email"></el-input>
                         </el-form-item>
-                        <el-form-item label="角色" :label-width="formLabelWidth">
+                        <!-- <el-form-item label="角色" :label-width="formLabelWidth">
                             <el-select v-model="userForm.role" placeholder="请选择用户权限">
                                 <el-option label="超级管理员" value="ADMIN"></el-option>
                                 <el-option label="普通用户" value="USER"></el-option>
                             </el-select>
-                        </el-form-item>
+                        </el-form-item> -->
                         <el-form-item label="用户状态" :label-width="formLabelWidth">
-                            <el-switch v-model="userForm.state"></el-switch>
+                            <el-switch v-model="userForm.enable"></el-switch>
                         </el-form-item>
                     </el-form>
                     <div slot="footer" class="dialog-footer">
@@ -120,7 +120,7 @@ export default {
                 email: '',
                 password: '',
                 role: 'USER',
-                state: false
+                enable: false
             },
             userList: [], // 用户列表
             total: 0, // 总记录数

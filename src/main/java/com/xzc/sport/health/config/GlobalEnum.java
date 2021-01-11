@@ -20,7 +20,12 @@ public enum GlobalEnum {
     USER_INSERT_FAILED(1008, "添加失败，该用户已存在"),
     LIMIT_INTERFACE_NOT_FOUND(1009, "限流接口并未找到"),
     EXCEPTION_LOG_NOT_FOUND(1010, "异常日志未找到"),
-    LIMIT_INTERFACE_IS_EXIST(1010, "限流接口已存在");
+    LIMIT_INTERFACE_IS_EXIST(1011, "限流接口已存在"),
+    TOKEN_EXPIRED(1012, "Token已过期，请重新进行登录"),
+    TOKEN_ERROR(1013, "Token错误"),
+    USERNAME_OR_PASSWORD_ERROR(1014, "账号或密码错误");
+
+
 
     private int code;
     private String message;

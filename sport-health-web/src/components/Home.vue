@@ -56,6 +56,8 @@
 </template>
 
 <script>
+import cookieUtil from '@/util/cookie-util'
+
 export default {
 
   data() {
@@ -78,10 +80,11 @@ export default {
   methods: {
     // 用户注销
     logout() {
-      $http.post("/logout").then((response) => {
+      $http.post("/authorize/logout").then((response) => {
           const res = response.data;
             // 清除本地存储的用户
-          window.storage.clear();
+          // window.storage.clear();
+          cookieUtil.removeCookie('Authorization')
 
             // 登出成功重定向到登录页
             this.$router.push("/login");

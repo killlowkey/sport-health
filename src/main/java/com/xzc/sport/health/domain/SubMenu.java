@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 public class SubMenu {
     @TableId(type = IdType.AUTO)
     @JsonProperty("subId")
-    private long id;
+    private Long id;
 
     @JsonProperty("subTitle")
     private String title;
@@ -30,7 +30,7 @@ public class SubMenu {
     private String icon;
 
     @JsonIgnore
-    private long mid;
+    private Long mid;
 
     @TableField(fill = FieldFill.INSERT)
     @JsonIgnore

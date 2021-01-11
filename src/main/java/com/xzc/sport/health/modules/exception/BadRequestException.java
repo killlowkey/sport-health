@@ -18,6 +18,10 @@ public class BadRequestException extends RuntimeException {
         this(globalEnum.getCode(), globalEnum.getMessage());
     }
 
+    public BadRequestException(RuntimeException ex) {
+        this(500, ex.getMessage());
+    }
+
     public int getCode() {
         return this.code;
     }

@@ -1,6 +1,5 @@
 package com.xzc.sport.health.controller.vo;
 
-import com.xzc.sport.health.modules.role.Role;
 import com.xzc.sport.health.domain.User;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -13,7 +12,7 @@ import org.springframework.beans.BeanUtils;
 public class UserVo {
     private String username;
     private String email;
-    private Role role;
+//    private RoleEnum role;
 
     public static UserVo getUserVo(User user) {
         UserVo userVo = new UserVo();
